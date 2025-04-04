@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, ScrollView } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
+
+const STORAGE_KEY = 'PIXEL_JOURNAL_ENTRIES';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -13,16 +16,24 @@ export default function App() {
   const [entry, setEntry] = useState('');
   const [history, setHistory] = useState([]);
 
+  // Load saved entries on app start
   useEffect(() => {
+    const loadEntries = async () => {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) setHistory(JSON.parse(stored));
+    };
     if (fontsLoaded) {
       SplashScreen.hideAsync();
+      loadEntries();
     }
   }, [fontsLoaded]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (entry.trim()) {
-      setHistory([entry, ...history]);
+      const newHistory = [entry, ...history];
+      setHistory(newHistory);
       setEntry('');
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
     }
   };
 
