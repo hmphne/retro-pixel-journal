@@ -1,41 +1,50 @@
-// screens/ProfileScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts } from 'expo-font';
 
-const PROFILE_KEY = 'PIXEL_PROFILE';
+export default function Profile({ navigation }) {
+  const [fontsLoaded] = useFonts({
+    pixel: require('../assets/fonts/PressStart2P-Regular.ttf'),
+  });
 
-export default function ProfileScreen({ navigation }) {
-  const [profile, setProfile] = useState({ xp: 0, unlockedItems: [] });
+  const [userInfo] = useState({
+    username: 'John Doe',
+    xp: 120, // Example XP
+    level: 3, // Example Level
+  });
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const stored = await AsyncStorage.getItem(PROFILE_KEY);
-      if (stored) setProfile(JSON.parse(stored));
-    };
-    loadProfile();
-  }, []);
+  if (!fontsLoaded) return null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>👤 Profile</Text>
-      <Text style={styles.text}>XP: {profile.xp}</Text>
-      <Text style={styles.text}>Unlocked: {profile.unlockedItems.join(', ') || 'None yet 🌱'}</Text>
-      <Button title="Back to Journal" onPress={() => navigation.goBack()} />
+      <Text style={styles.title}>User Profile</Text>
+      <Text style={styles.info}>Username: {userInfo.username}</Text>
+      <Text style={styles.info}>XP: {userInfo.xp}</Text>
+      <Text style={styles.info}>Level: {userInfo.level}</Text>
+
+      <Button
+        title="Back to Journal"
+        onPress={() => navigation.goBack()}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: {
+    padding: 20,
+    marginTop: 40,
+    backgroundColor: '#f5f5f5',
+  },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'pixel',
     marginBottom: 20,
+    textAlign: 'center',
   },
-  text: {
-    fontSize: 12,
+  info: {
     fontFamily: 'pixel',
-    marginBottom: 10,
+    fontSize: 16,
+    marginVertical: 5,
   },
 });
